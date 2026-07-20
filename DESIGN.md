@@ -1,6 +1,6 @@
 # VZ-DOOM — Design Document
 
-A DOOM-flavoured 3D maze shooter for the Dick Smith VZ200. Because it's there.
+A DOOM-flavoured 3D maze shooter for the Dick Smith VZ200. Because why wouldn't you want to try and run DOOM on everything?
 
 ## Reality check (agreed earlier)
 
@@ -75,7 +75,7 @@ fallback if the budget slips.
   2048 VRAM bytes). `src/raycast.asm` + `tools/gen_tables.py` (tables + ref
   renderer) + `tools/z80sim.py` (minimal Z80 interpreter harness).
   Slow auto-rotation (1 unit / 4 frames). ~49.2K instructions ≈ 330K T-states
-  per frame → predicted **~10–11 fps**. Awaiting hardware test.
+  per frame → predicted **~10–11 fps**.
 - **M3 — movement** ✅ code-complete, simulator-verified (`src/walk.asm` →
   WALK.VZ). Controls: W/S forward/back, A/D turn (2 units/frame), ,/. strafe.
   Movement = step tables reused (1/8 cell/frame); collision tests X and Y
@@ -83,8 +83,8 @@ fallback if the budget slips.
   ($68FE W · $68FD A/D/S · $68EF ,/.), invisible to the Pico capture.
   Verified via `tools/walk_test.py`: 6 scripted-input scenarios (idle
   regression, walk, wall stop at exact fixed-point boundary, turn, strafe,
-  turn+walk), every frame byte-exact vs the Python reference. Awaiting
-  hardware test.
+  turn+walk), every frame byte-exact vs the Python reference.
+  
 - **M4 — doors, gun, sound** ✅ code-complete, simulator-verified
   (`src/vzdoom.asm` → VZDOOM.VZ). Doors: cell type 2 (render $DD), E opens
   the cell 0.5 ahead, auto-close 75 frames, held open while occupied, one
