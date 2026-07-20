@@ -14,6 +14,8 @@ Yes, it really runs on a stock VZ200:
 
 ![Running on a real VZ200 CRT](docs/images/on-real-hardware.jpg)
 
+![Panning the map](docs/images/3d_map_moving.gif)
+
 ---
 
 ## What it does
@@ -128,6 +130,7 @@ DESIGN.md         design notes and development history
 
 ## Credits & thanks
 
+- Claude Code Fable5 (All code written by Claude)
 - Built for the VZ200 using **BennVenn's SD Loader** and his CPLD bus-export
   firmware — the SD Loader is what makes loading (and the RAM expansion) painless.
   <https://bennvenn.myshopify.com/products/vz300-sd-loader>
