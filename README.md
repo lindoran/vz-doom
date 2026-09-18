@@ -72,22 +72,61 @@ If you don't have the RAM expansion, the game won't fit — see
 ## Build it yourself
 
 You need [**sjasmplus**](https://github.com/z00m128/sjasmplus) (a Z80 cross
-assembler) and, optionally, Python 3.10+ (only to regenerate the lookup tables).
+assembler) and Python 3.10+ (only to regenerate the lookup tables).
 
-1. Download sjasmplus and put `sjasmplus.exe` in the [`tools/`](tools/) folder.
-2. (Optional) regenerate tables — needed only if you change the map, art, or
+**Linux / macOS** — `sjasmplus` must be on your `PATH` (e.g.
+`sudo apt install sjasmplus`), or place a `sjasmplus` binary in
+[`tools/`](tools/).
+
+**Windows** — place `sjasmplus.exe` in the [`tools/`](tools/) folder.
+
+### Steps
+
+1. (Optional) regenerate tables — needed only if you change the map, art, or
    engine constants:
+   ```bash
+   python3 tools/gen_tables.py
    ```
-   python tools/gen_tables.py
+
+2. Assemble the base game:
+   ```bash
+   # Linux / macOS
+   ./build.sh src/vzdoom.asm VZDOOM
    ```
-3. Assemble and wrap into a `.VZ`:
    ```powershell
+   # Windows
    .\build.ps1 src\vzdoom.asm VZDOOM
    ```
    The playable file lands in `build/VZDOOM.VZ`.
 
+3. Assemble the **kiosk build** (continuous-play, no quit-to-BASIC):
+   ```bash
+   # Linux / macOS
+   ./build.sh src/vzdoom_kiosk.asm VZDOOMK
+   ```
+   ```powershell
+   # Windows
+   .\build.ps1 src\vzdoom_kiosk.asm VZDOOMK
+   ```
+   Output: `build/VZDOOMK.VZ`
+
 The committed [`src/tables.inc`](src/tables.inc) is pre-generated, so you can
 build the game with sjasmplus alone — Python is only for changing the data.
+
+### Kiosk mode
+
+[`src/vzdoom_kiosk.asm`](src/vzdoom_kiosk.asm) is a continuous-play variant
+built alongside (not replacing) the base game:
+
+- **Title / controls screen** shown at boot and after every death — SPACE to
+  start or respawn.
+- **Wave clear**: kill all 3 demons while alive → +20 HP heal (capped at 100),
+  short fanfare, demons respawn faster every 2 waves (capped).
+- **No quit-to-BASIC** (`EXHIBIT EQU 1`): Q does nothing; SPACE is the only
+  forward path. Flip to `EXHIBIT EQU 0` and reassemble for a dev build where
+  Q still quits.
+- Runs entirely in linear RAM — no bank switching, no SD-loader DOS calls —
+  so it works on a stock VZ200/300 with a 16 KB expansion pack.
 
 ## How it was built (the interesting part)
 
@@ -105,6 +144,9 @@ nothing reached the VZ200 without passing a **byte-exact simulator check** first
   Python reference, **byte for byte**, across ~17 scenarios (movement, wall
   collision, doors, demon AI, hitscan kills, damage, death, and an 88-position
   projection sweep).
+- [`tools/kiosk_test.py`](tools/kiosk_test.py) runs the same harness against
+  the kiosk build, covering the title screen, respawn, wave-clear healing, and
+  demon speed ramp.
 
 This caught bugs that would have been maddening to debug on a CRT — including a
 Z80 division routine that dropped a carry bit and made demons flicker and
@@ -114,18 +156,23 @@ teleport. See [DESIGN.md](DESIGN.md) for the full milestone-by-milestone story.
 
 ```
 src/
-  vzdoom.asm      the game (current build)
-  wavedemo.asm    milestone 1 — column renderer
-  raycast.asm     milestone 2 — the raycaster
-  walk.asm        milestone 3 — movement
-  tables.inc      generated data tables (map, trig, sprites, HUD)
+  vzdoom.asm          the base game (current build)
+  vzdoom_kiosk.asm    kiosk/continuous-play variant
+  wavedemo.asm        milestone 1 — column renderer
+  raycast.asm         milestone 2 — the raycaster
+  walk.asm            milestone 3 — movement
+  tables.inc          generated data tables (map, trig, sprites, HUD)
 tools/
-  gen_tables.py   Python reference renderer + table generator
-  z80sim.py       minimal Z80 interpreter (the verifier)
-  doom_test.py    byte-exact test suite
-build.ps1         assemble + wrap a .VZ file
-dist/VZDOOM.VZ    prebuilt, ready to play
-DESIGN.md         design notes and development history
+  gen_tables.py       Python reference renderer + table generator
+  z80sim.py           minimal Z80 interpreter (the verifier)
+  doom_test.py        byte-exact test suite for the base game
+  kiosk_test.py       byte-exact test suite for the kiosk build
+  walk_test.py        byte-exact test suite for milestone 3 (movement)
+build.sh              assemble + wrap a .VZ file  (Linux / macOS — primary)
+build.ps1             assemble + wrap a .VZ file  (Windows)
+dist/VZDOOM.VZ        prebuilt base game, ready to play
+dist/VZDOOMK.VZ       prebuilt kiosk build, ready to play
+DESIGN.md             design notes and development history
 ```
 
 ## Credits & thanks

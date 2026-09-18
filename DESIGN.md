@@ -67,7 +67,9 @@ fallback if the budget slips.
 
 ## Milestones
 
-- **M0 — toolchain** ✅ sjasmplus 1.23.1 + build.ps1 (.asm → .VZ autostart)
+- **M0 — toolchain** ✅ sjasmplus 1.23.1 + `build.sh` (Linux/macOS primary) /
+  `build.ps1` (Windows) — `.asm → .VZ` autostart. Both scripts produce
+  identical output: 24-byte VZF1 header + binary, type F1 autostart.
 - **M1 — wavedemo** ✅ column renderer measured **50.95 fps** on hardware
   (predicted 50); capture path clean at 663K samples/s
 - **M2 — raycast** ✅ code-complete, **simulator-verified byte-exact** vs the
@@ -123,11 +125,26 @@ fallback if the budget slips.
 
 ```
 vz_doom/
-  DESIGN.md          this file
-  build.ps1          assemble + wrap .VZ (usage: .\build.ps1 src\wavedemo.asm NAME)
-  tools/sjasmplus.exe
-  src/wavedemo.asm   M1 demo
-  build/             .bin and .VZ outputs
+  DESIGN.md              this file
+  build.sh               assemble + wrap .VZ (Linux/macOS — primary)
+  build.ps1              assemble + wrap .VZ (Windows)
+  src/
+    vzdoom.asm           the base game (M4+)
+    vzdoom_kiosk.asm     kiosk/continuous-play variant
+    wavedemo.asm         M1 demo
+    raycast.asm          M2 raycaster demo
+    walk.asm             M3 movement demo
+    tables.inc           generated data (map, trig, sprites, HUD)
+  tools/
+    gen_tables.py        Python reference renderer + table generator
+    z80sim.py            minimal Z80 interpreter
+    doom_test.py         byte-exact test suite (base game)
+    kiosk_test.py        byte-exact test suite (kiosk build)
+    walk_test.py         byte-exact test suite (M3 movement)
+  build/                 .bin and .VZ outputs (gitignored)
+  dist/
+    VZDOOM.VZ            prebuilt base game
+    VZDOOMK.VZ           prebuilt kiosk build
 ```
 
 ## Open questions
